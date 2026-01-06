@@ -24,7 +24,9 @@ require (
 	github.com/olekukonko/errors v1.1.0 // indirect
 	github.com/olekukonko/ll v0.0.9 // indirect
 	github.com/olekukonko/tablewriter v1.0.7 // indirect
+	github.com/phpdave11/gopdf v0.9.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/signintech/gopdf v0.34.0 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/toorop/go-dkim v0.0.0-20201103131630-e1cd1a0a5208 // indirect
 	github.com/vanng822/css v1.0.1 // indirect

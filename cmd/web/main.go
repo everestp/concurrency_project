@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/gob"
 	"final-project/data"
-
 	"fmt"
 	"log"
 	"net/http"
@@ -22,7 +21,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-const webPort = "8007"
+const webPort = "8090"
 
 func main() {
 	// connect to the database
@@ -48,19 +47,33 @@ func main() {
 		ErrorLog: errorLog,
 		Wait:     &wg,
 		Models:   data.New(db),
-		
-		
+		ErrorChan: make(chan error),
+		ErrorChanDone: make(chan bool),
 	}
 
 	// set up mail
-    app.Mailer =app.createMail()
+	app.Mailer = app.createMail()
 	go app.listenForMail()
-	// listen for signals
 
+	// listen for signals
 	go app.listenForShutdown()
+
+	// listen for errors
+	go app.listenForErrors()
 
 	// listen for web connections
 	app.serve()
+}
+
+func (app *Config) listenForErrors() {
+	for {
+		select {
+		case err := <-app.ErrorChan:
+			app.ErrorLog.Println(err)
+		case <-app.ErrorChanDone:
+			return
+		}
+	}
 }
 
 func (app *Config) serve() {
@@ -169,16 +182,20 @@ func (app *Config) listenForShutdown() {
 func (app *Config) shutdown() {
 	// perform any cleanup tasks
 	app.InfoLog.Println("would run cleanup tasks...")
+
 	// block until waitgroup is empty
 	app.Wait.Wait()
-    app.Mailer.DoneChan <- true
+
+	app.Mailer.DoneChan <- true
+	app.ErrorChanDone <- true
+
+	app.InfoLog.Println("closing channels and shutting down application...")
 	close(app.Mailer.MailerChan)
 	close(app.Mailer.ErrorChan)
 	close(app.Mailer.DoneChan)
-
-	app.InfoLog.Println("closing channels and shutting down application...")
+	close(app.ErrorChan)
+	close(app.ErrorChanDone)
 }
-
 
 func (app *Config) createMail() Mail {
 	// create channels
@@ -192,7 +209,7 @@ func (app *Config) createMail() Mail {
 		Port: 1025,
 		Encryption: "none",
 		FromName: "Info",
-		FromAddress: "info@cka.one",
+		FromAddress: "info@mycompany.com",
 		Wait: app.Wait,
 		ErrorChan: errorChan,
 		MailerChan: mailerChan,
