@@ -22,7 +22,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-const webPort = "8004"
+const webPort = "8007"
 
 func main() {
 	// connect to the database
