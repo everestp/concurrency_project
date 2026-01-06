@@ -22,7 +22,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-const webPort = "8002"
+const webPort = "8004"
 
 func main() {
 	// connect to the database
@@ -169,9 +169,12 @@ func (app *Config) listenForShutdown() {
 func (app *Config) shutdown() {
 	// perform any cleanup tasks
 	app.InfoLog.Println("would run cleanup tasks...")
-
 	// block until waitgroup is empty
 	app.Wait.Wait()
+    app.Mailer.DoneChan <- true
+	close(app.Mailer.MailerChan)
+	close(app.Mailer.ErrorChan)
+	close(app.Mailer.DoneChan)
 
 	app.InfoLog.Println("closing channels and shutting down application...")
 }
