@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"final-project/data"
 	"fmt"
 	"log"
 	"net/http"
@@ -44,6 +45,7 @@ func main() {
 	ErrorLog: errorLog,
 	InfoLog: infoLog,
 	Wait: &wg,
+	Models : data.New(db),
 	
 
   }

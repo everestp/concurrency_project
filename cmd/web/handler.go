@@ -11,7 +11,9 @@ func (app *Config) LoginPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Config) PostLoginPage(w http.ResponseWriter, r *http.Request) {
+  _ = app.Session.RenewToken(r.Context())
 
+  //parese from 
 }
 
 func (app *Config) Logout(w http.ResponseWriter, r *http.Request) {
